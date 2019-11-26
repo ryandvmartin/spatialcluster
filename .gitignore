@@ -1,0 +1,6 @@
+__pycache__
+build
+dist
+spatialcluster.egg-info
+temp
+.pytest_cache
