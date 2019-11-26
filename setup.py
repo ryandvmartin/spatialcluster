@@ -21,7 +21,7 @@ if __name__ == '__main__':
           maintainer='Ryan Martin',
           maintainer_email='rdm1@ualberta.ca',
           author=['Ryan Martin'],
-          license='MIT / CCG',
+          license='GPLv3 / CCG',
           python_requires='>3.6',
           install_requires=['numpy>=1.14', 'scipy', 'scikit-learn', 'numba', 'tqdm',
                             'umap-learn'],
