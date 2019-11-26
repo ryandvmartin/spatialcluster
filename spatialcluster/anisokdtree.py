@@ -1,4 +1,4 @@
-""" (c) Ryan Martin 2018 under MIT license """
+""" (c) Ryan Martin 2018 under GPLv3 license """
 
 import numpy as np
 from scipy.spatial import cKDTree

@@ -2,7 +2,7 @@
 Utility functions, jitted where appropriate, to facilitate spatial clustering methodologies
 developed in this package
 
-(c) Ryan Martin 2018 under MIT license
+(c) Ryan Martin 2018 under GPLv3 license
 """
 
 import numba

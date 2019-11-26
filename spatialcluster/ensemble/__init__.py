@@ -1,7 +1,7 @@
 """
 Ensemble Clustering Algorithms
 
-(c) Ryan Martin 2018 under MIT license
+(c) Ryan Martin 2018 under GPLv3 license
 """
 from .baseensemble import BaseEnsemble
 from .dssensemble import DSSEnsemble

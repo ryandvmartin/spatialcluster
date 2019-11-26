@@ -2,7 +2,7 @@
 Base Ensemble Spatial Clustering Object that parses basic multivariate and spatial inputs
 and implements functions common to all ensemble clusteirng objects
 
-(c) Ryan Martin 2018 under MIT license
+(c) Ryan Martin 2018 under GPLv3 license
 """
 
 import numpy as np

@@ -1,7 +1,7 @@
 """
 Spatial cluster_utils Implementations
 
-(c) Ryan Martin 2018 under MIT license
+(c) Ryan Martin 2018 under GPLv3 license
 """
 
 __version__ = '0.0.3'
