@@ -83,7 +83,7 @@ def cluster(nclus, dfs, n_init=1, variables=None, method='kmeans', rseed=None):
         One of `KMeans`, `AgglomerativeClustering` or `GaussianMixture`
 
     """
-    from sklearn.cluster import KMeans, hierarchical
+    from sklearn.cluster import KMeans, AgglomerativeClustering
     from sklearn.mixture import GaussianMixture
     # get the data for clustering:
     if variables is not None:
@@ -99,10 +99,11 @@ def cluster(nclus, dfs, n_init=1, variables=None, method='kmeans', rseed=None):
         model = model.fit(nd_pts)
         clusdef = model.predict(nd_pts)
     elif method.lower() == 'hier':
-        model = hierarchical.AgglomerativeClustering(n_clusters=nclus, linkage='ward')
+        model = AgglomerativeClustering(n_clusters=nclus, linkage='ward')
         clusdef = model.fit_predict(nd_pts)
     else:
-        raise ValueError("Invalid clustering `method`, try one of `kmeans`, `gmm` or `hier`")
+        raise ValueError(
+            "Invalid clustering `method`, try one of `kmeans`, `gmm` or `hier`")
     return clusdef, model
 
 
@@ -210,7 +211,8 @@ def reclass_clusters(base, clusters):
         clusters = clusters.values
     uclus_base = np.unique(base).astype(int)
     uclus_clus = np.unique(clusters).astype(int)
-    assert len(uclus_base) == len(uclus_clus), 'ERROR: cluster number mismatch between clusterings'
+    assert len(uclus_base) == len(
+        uclus_clus), 'ERROR: cluster number mismatch between clusterings'
     perms = np.array([p for p in itertools.permutations(uclus_base)])
     clusters = clusters.astype(int)
 
@@ -543,7 +545,8 @@ def _choose(N, K):
 def _unique(vector):
     """ replacement for `np.unique` in jitted functions """
     vector_sorted = np.sort(vector)
-    idxs = np.concatenate((np.ones(1, dtype=np.bool_), vector_sorted[:-1] != vector_sorted[1:]))
+    idxs = np.concatenate(
+        (np.ones(1, dtype=np.bool_), vector_sorted[:-1] != vector_sorted[1:]))
     return vector_sorted[idxs]
 
 
