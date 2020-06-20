@@ -80,6 +80,8 @@ def tdiff_wcss(ucats, categories, mvdata):
     clusmean = np.zeros(nvar, dtype=np.float64)
     for icat, cat in enumerate(ucats):
         catvals = mvdata[categories == cat, :]
+        if catvals.shape[0] == 0:
+            continue
         clusmean[:] = 0.0
         for ivar in range(nvar):
             clusmean[ivar] = catvals[:, ivar].mean()
@@ -112,6 +114,8 @@ def tdiff_mwcss(ucats, categories, mvdata, regconst=0.001):
     distsum = np.zeros(len(ucats), dtype=np.float64)
     for icat, cat in enumerate(ucats):
         catvals = mvdata[categories == cat, :]
+        if catvals.shape[0] == 0:
+            continue
         covmat = cov(catvals, regconst)
         invcov = np.linalg.inv(covmat)
         for ivar in range(nvar):
