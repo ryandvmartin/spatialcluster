@@ -94,9 +94,6 @@ class MDSPlot:
     def embed(self, **kwargs):
         """
         Quick wrapper around some sklearn manifold techniques
-
-        Parameters:
-            data (dataframe or np.ndarray):
         """
         from sklearn import manifold
         data = self.data
@@ -113,6 +110,8 @@ class MDSPlot:
         elif self.mtype.lower() == 'isomap':
             import umap
             model = manifold.Isomap(n_components=self.ndim, **kwargs)
+        else:
+            raise ValueError("Invalid mtype!")
         nrow, ncol = data.shape
         if ncol > nrow:
             data = data.T
@@ -199,7 +198,7 @@ class MDSPlot:
 
 
 def elbowplt(dataframe, variables, ninit=10, maxclust=20, ax=None, gmm=False, figsize=None,
-             **plotkws):
+             wcss_c='C0', gmm_c='C1', wcss_label='WCSS', gmm_label='GMM', **plotkws):
     """
     For a number of cluster numbers, fit the clustering, calculate the WCSS, and generate a plot
     showing the relationship over the range of K
@@ -230,8 +229,7 @@ def elbowplt(dataframe, variables, ninit=10, maxclust=20, ax=None, gmm=False, fi
     wcss_km_m = np.zeros(len(clusnums))
     wcss_gmm_m = np.zeros(len(clusnums))
     for i, nclus in enumerate(clusnums):
-        if gmm:
-            nav_gmm = 0
+        nav_gmm = 0
         nav_km = 0
         cats = np.arange(nclus) + 1
         for init in range(ninit):
@@ -251,13 +249,15 @@ def elbowplt(dataframe, variables, ninit=10, maxclust=20, ax=None, gmm=False, fi
         wcss_km_m[i] /= nav_km
 
     if ax is None:
-        _, ax = plt.subplots(figsize=figsize)
-    ax.plot(clusnums, wcss_km_m, c='blue', **plotkws, label='WCSS')
+        _, ax = plt.subplots(1, 1, figsize=figsize)
+    plotkws['c'] = wcss_c
+    ax.plot(clusnums, wcss_km_m, **plotkws, label=wcss_label)
     ax.set_ylabel('WCSS')
     if gmm:
         ax2 = ax.twinx()
-        ax2.plot(clusnums, wcss_gmm_m, c='red', **plotkws, label='GMM')
-        ax.plot(np.nan, c='red', **plotkws, label='GMM')
+        plotkws['c'] = gmm_c
+        ax2.plot(clusnums, wcss_gmm_m, **plotkws, label=gmm_label)
+        ax.plot(np.nan, c='red', **plotkws, label=gmm_label)
         # ax.set_ybound(0)
         ax2.set_ylabel('M-WCSS')
         ax2.grid(False)
