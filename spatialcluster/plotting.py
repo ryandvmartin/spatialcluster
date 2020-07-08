@@ -257,8 +257,7 @@ def elbowplt(dataframe, variables, ninit=10, maxclust=20, ax=None, gmm=False, fi
         ax2 = ax.twinx()
         plotkws['c'] = gmm_c
         ax2.plot(clusnums, wcss_gmm_m, **plotkws, label=gmm_label)
-        ax.plot(np.nan, c='red', **plotkws, label=gmm_label)
-        # ax.set_ybound(0)
+        ax.plot(np.nan, **plotkws, label=gmm_label)
         ax2.set_ylabel('M-WCSS')
         ax2.grid(False)
     ax.set_xlabel('Number of Clusters, `K`')
