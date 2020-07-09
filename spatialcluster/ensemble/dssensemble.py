@@ -18,7 +18,7 @@ from .baseensemble import BaseEnsemble
 def JoblibProgressBar(size=None, name='Items'):
     """Progress bar as a context manager to patch joblib
 
-    from https://stackoverflow.com/a/58936697
+    from https://stackoverflow.com/a/41815007
     """
     import joblib
 
