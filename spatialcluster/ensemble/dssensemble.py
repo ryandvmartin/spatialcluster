@@ -4,6 +4,7 @@ Dual Space Search Ensemble Clustering
 (c) Ryan Martin 2018 under GPLv3 license
 """
 
+import contextlib
 import numpy as np
 from numba import njit
 
@@ -11,6 +12,41 @@ from .. import statfuncs
 from ..anisokdtree import build_anisotree
 from ..utils import log_progress, rseed_list
 from .baseensemble import BaseEnsemble
+
+
+@contextlib.contextmanager
+def JoblibProgressBar(size=None, name='Items'):
+    """Progress bar as a context manager to patch joblib"""
+    import joblib
+
+    pbar = None
+    if size is not None:
+        pbar = log_progress(list(range(size)), name=name)
+
+        def progress_update(*args, **kwargs):
+            pbar.update()
+    else:
+        def progress_update(*args, **kwargs):
+            pass
+
+    class BatchCompletionCallBack:
+        def __init__(self, time, index, parallel):
+            self.index = index
+            self.parallel = parallel
+
+        def __call__(self, index):
+            progress_update()
+            if self.parallel._original_iterator is not None:
+                self.parallel.dispatch_next()
+
+    old_batch_callback = joblib.parallel.BatchCompletionCallBack
+    joblib.parallel.BatchCompletionCallBack = BatchCompletionCallBack
+    try:
+        yield pbar
+    finally:
+        joblib.parallel.BatchCompletionCallBack = old_batch_callback
+        if pbar is not None:
+            pbar.close()
 
 
 class DSSEnsemble(BaseEnsemble):
@@ -52,45 +88,26 @@ class DSSEnsemble(BaseEnsemble):
         clusterings : ndarray
 
         """
-        import multiprocessing as mp
-        assert nprocesses is None or nprocesses >= 1, 'invalid nprocesses'
+        from joblib import Parallel, delayed
+        if nprocesses is None:
+            nprocesses = 1
+        assert nprocesses >= 1, 'invalid nprocesses'
         mvdata = self.mvdata
         locations = self.locations
         ndata, _ = mvdata.shape
         seeds = rseed_list(self.pars['nreal'], self.pars['rseed'])
         self.clusterings = np.zeros((ndata, self.pars['nreal']))
         # setup the parallel args list
-        if nprocesses is not None:
-            if verbose:
-                pbar = log_progress(seeds, name='Clusterings')
-
-                def updatefunc(*args, **kwargs):
-                    pbar.update()
-
-            else:
-                updatefunc = None
-            pool = mp.Pool(processes=nprocesses)
-            results = {}
-            for iproc, seed in enumerate(seeds):
-                args = (mvdata, locations, self.pars['nnears'], self.pars['numtake'], target_nclus,
-                        self.pars['searchparams'], int(seed), self.pars['minfound'],
-                        self.pars['maxfound'])
-                results[iproc] = pool.apply_async(dss_single, args, callback=updatefunc)
-            pool.close()
-            pool.join()
-            pbar.close()
-            for iproc in range(self.pars['nreal']):
-                self.clusterings[:, iproc] = results[iproc].get()
-        else:
-            if verbose:
-                iterable = log_progress(seeds, name="Clusterings")
-            else:
-                iterable = seeds
-            for iproc, seed in enumerate(iterable):
-                args = (mvdata, locations, self.pars['nnears'], self.pars['numtake'], target_nclus,
-                        self.pars['searchparams'], int(seed), self.pars['minfound'],
-                        self.pars['maxfound'])
-                self.clusterings[:, iproc] = dss_single(*args)
+        jobs = []
+        for iproc, seed in enumerate(seeds):
+            args = (mvdata, locations, self.pars['nnears'], self.pars['numtake'], target_nclus,
+                    self.pars['searchparams'], int(seed), self.pars['minfound'],
+                    self.pars['maxfound'])
+            jobs.append(delayed(dss_single)(*args))
+        with JoblibProgressBar(len(jobs) if verbose else None, 'Clusterings'):
+            res = Parallel(n_jobs=nprocesses, backend='loky')(jobs)
+        for iproc, clus in enumerate(res):
+            self.clusterings[:, iproc] = clus
 
 
 # ---------------------------------
