@@ -184,7 +184,7 @@ def _prop_equal_byvar(uclus, clus1, clus2, variables):
         p1 = variables[clus1 == cluscode]
         p2 = variables[clus2 == cluscode]
         dist += wards_distance(p1, p2)
-    return dist / len(uclus)
+    return dist / len(uclus) if len(uclus) > 0 else 0.0
 
 
 def reclass_clusters(base, clusters):
