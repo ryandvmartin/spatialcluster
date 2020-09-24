@@ -195,11 +195,16 @@ def ssdss_single(mvdata, xyzlocs, domaincodes, nseed, nnears, num_take, target_n
     ireject = 0
     while True:
         assigned[:] = False
-        clustering = np.zeros(ndata)
+        clustering = np.zeros(ndata, dtype=int)
         # track the number of clusters that are seeded
         nseeded = 0
         iclus = target_nclus + 1
         # --------------------------------------------------
+        # Seed a minimum of 1 from each input code
+        idx = rng.permutation(ndata)
+        for i, c in enumerate(np.unique(domaincodes)):
+            clustering[idx[i]] = c
+            nseeded += 1
         idx = rng.permutation(ndata)
         closeidxs = anisotree.query(rotlocs[idx, :], nnears + 1)[1]
         # closeidxs now contains the [ndata, nnears] idxs to randomly permuted data
