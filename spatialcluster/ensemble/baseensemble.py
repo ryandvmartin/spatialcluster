@@ -1,6 +1,6 @@
 """
 Base Ensemble Spatial Clustering Object that parses basic multivariate and spatial inputs
-and implements functions common to all ensemble clusteirng objects
+and implements functions common to all ensemble clustering objects
 
 (c) Ryan Martin 2018 under GPLv3 license
 """
